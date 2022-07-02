@@ -50,6 +50,46 @@ import { Car, cars as cars_list } from './cars';
               .send(`Welcome to the Cloud, ${name}!`);
   } );
 
+  // Get a car and filterable by make
+   app.get( "/cars/", ( req: Request, res: Response) => {
+    // Destruct our query parameters
+    let {make} = req.query;
+
+    let cars_list = cars;
+
+    // if we have an optional query parameter, filter by its make
+    if ( make ) {
+      cars_list = cars.filter((car) => car.make === make);
+    }
+
+    res.status(200) .send(cars_list );
+   } );
+
+   // Get specific car by ID
+   app.get('/cars/:id', (req: Request, res: Response) => {
+    // destruct our path params
+    let {id} = req.params;
+
+
+    if ( !id ){
+      // respond with an error if id is not set
+      return res.status(400).send(`id is required`);
+
+    }
+
+    // find the car by id
+    const car = cars.filter((car) => car.id == Number(id) );
+
+    // respond not found, if we do not have this id
+    if (car && car.length == 0){
+      return res.status(404).send(`car is not found`)
+    }
+
+    // return the car with a success status code
+    res.status(200).send(car);
+
+   });
+
   // Post a greeting to a specific person
   // to demonstrate req.body
   // > try it by posting {"name": "the_name" } as 
@@ -67,6 +107,32 @@ import { Car, cars as cars_list } from './cars';
       return res.status(200)
                 .send(`Welcome to the Cloud, ${name}!`);
   } );
+
+  // Post a new car to our list
+  app.post("/cars/", async (req: Request, res: Response) => {
+
+    // destruct our body payload for our variables
+    let { make, type, model, cost, id} = req.body;
+
+    // check to make sure all required variables are set
+    if (!id || !type || !cost){
+      //respond with an error if not
+      return res.status(400)
+                .send(`make, type, mode, cost, id are required`);
+    }
+
+    // create a new car instance
+    const new_car: Car = {
+      make:make, type: type, model:model, cost:cost, id:id
+    };
+
+    // add this car to our local variable
+    cars.push(new_car);
+
+    //send the complete car object as a response
+    //along with 201 - creation success
+    res.status(201).send(new_car);
+  });
 
   // @TODO Add an endpoint to GET a list of cars
   // it should be filterable by make with a query paramater

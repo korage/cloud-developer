@@ -10,14 +10,15 @@ router.get('/', async (req: Request, res: Response) => {
     const items = await FeedItem.findAndCountAll({order: [['id', 'DESC']]});
     items.rows.map((item) => {
             if(item.url) {
-                item.url = AWS.getGetSignedUrl(item.url);
+                item.url = AWS.getPutSignedUrl(item.url);
             }
     });
     res.send(items);
 });
-
+ 
 //@TODO
 //Add an endpoint to GET a specific resource by Primary Key
+
 
 // update a specific resource
 router.patch('/:id', 
@@ -57,8 +58,8 @@ router.post('/',
     }
 
     const item = await new FeedItem({
-            caption: caption,
-            url: fileName
+        // caption: caption,
+        // url: fileName
     });
 
     const saved_item = await item.save();
